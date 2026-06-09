@@ -5,12 +5,12 @@
 
 #include <memory>
 
-class Shader;  // forward-declared; full types only needed in the .cpp
+class Shader;
 class Texture;
+class Mesh;
 class Input;
 
-// Top-level owner of the window and the main render loop. As the project grows
-// this is where the renderer, scene, camera, and UI will be wired together.
+// Top-level owner of the window and the main render loop.
 class Application
 {
 public:
@@ -19,16 +19,13 @@ public:
     int run();
 
 private:
-    void initCube();              // Phase 5 geometry (extracted into Mesh in Phase 6)
+    static std::unique_ptr<Mesh> buildCube();  // Phase 6: factory, returns a Mesh
     void processInput(float dt);
 
     Window m_window;
     Camera m_camera;
-    std::unique_ptr<Input> m_input;
-
-    unsigned int m_vao = 0;
-    unsigned int m_vbo = 0;
-    unsigned int m_ebo = 0;
+    std::unique_ptr<Input>   m_input;
+    std::unique_ptr<Mesh>    m_mesh;
     std::unique_ptr<Shader>  m_shader;
     std::unique_ptr<Texture> m_texture;
 
