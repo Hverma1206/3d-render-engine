@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake -S . -B build)",
+      "Bash(cmake --build build -j)",
+      "Bash(perl -e 'alarm 3; exec \"./RenderingSandbox\"')"
+    ]
+  }
+}

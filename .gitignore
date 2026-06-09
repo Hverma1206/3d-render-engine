@@ -1,0 +1,12 @@
+# Build output
+build/
+cmake-build-*/
+*.o
+*.obj
+*.a
+
+# OS / IDE cruft
+.DS_Store
+.vscode/
+.idea/
+*.swp
