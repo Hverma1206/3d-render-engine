@@ -12,6 +12,10 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "Build type" FORCE)
 endif()
 
+# Emit compile_commands.json so clangd / IntelliSense resolve Homebrew include
+# paths (glm, GLFW, ...) correctly instead of showing false include errors.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # ---------------------------------------------------------------------------
 # Dependencies (Homebrew, resolved via find_package)
 #   glfw3  -> imported target `glfw`     (pulls Cocoa/IOKit/CoreVideo on macOS)
@@ -35,7 +39,7 @@ target_include_directories(glad PUBLIC third_party/glad/include)
 file(GLOB_RECURSE SANDBOX_SOURCES CONFIGURE_DEPENDS src/*.cpp)
 add_executable(RenderingSandbox ${SANDBOX_SOURCES})
 
-target_include_directories(RenderingSandbox PRIVATE src)
+target_include_directories(RenderingSandbox PRIVATE src third_party/stb)
 target_link_libraries(RenderingSandbox PRIVATE
     glad
     glfw
@@ -45,3 +49,7 @@ target_link_libraries(RenderingSandbox PRIVATE
 
 # macOS: OpenGL is deprecated in favor of Metal; silence the deprecation spam.
 target_compile_definitions(RenderingSandbox PRIVATE GL_SILENCE_DEPRECATION)
+
+# Absolute path to the project root so the app can locate shaders/ and assets/
+# regardless of the working directory it is launched from.
+target_compile_definitions(RenderingSandbox PRIVATE RS_PROJECT_ROOT="${CMAKE_SOURCE_DIR}")

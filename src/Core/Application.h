@@ -1,6 +1,13 @@
 #pragma once
 
 #include "Core/Window.h"
+#include "Scene/Camera.h"
+
+#include <memory>
+
+class Shader;  // forward-declared; full types only needed in the .cpp
+class Texture;
+class Input;
 
 // Top-level owner of the window and the main render loop. As the project grows
 // this is where the renderer, scene, camera, and UI will be wired together.
@@ -12,15 +19,18 @@ public:
     int run();
 
 private:
-    // Phase 2: build the triangle's GPU buffers + a minimal inline shader.
-    // These raw GL handles get extracted into a Shader class (Phase 3) and a
-    // Mesh class (Phase 6); they live here for now to keep Phase 2 focused.
-    void initTriangle();
+    void initCube();              // Phase 5 geometry (extracted into Mesh in Phase 6)
+    void processInput(float dt);
 
     Window m_window;
+    Camera m_camera;
+    std::unique_ptr<Input> m_input;
 
-    unsigned int m_vao     = 0; // vertex array object (the format/binding state)
-    unsigned int m_vbo     = 0; // vertex buffer object (the vertex data)
-    unsigned int m_ebo     = 0; // element buffer object (the indices)
-    unsigned int m_program = 0; // linked shader program
+    unsigned int m_vao = 0;
+    unsigned int m_vbo = 0;
+    unsigned int m_ebo = 0;
+    std::unique_ptr<Shader>  m_shader;
+    std::unique_ptr<Texture> m_texture;
+
+    float m_lastFrame = 0.0f;
 };

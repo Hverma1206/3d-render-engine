@@ -5,6 +5,9 @@ cmake-build-*/
 *.obj
 *.a
 
+# Editor tooling (symlink into build/)
+compile_commands.json
+
 # OS / IDE cruft
 .DS_Store
 .vscode/
