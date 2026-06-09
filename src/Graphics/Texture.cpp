@@ -7,24 +7,18 @@
 #include "stb_image.h"
 
 #include <cstdio>
-#include <utility>
 
 Texture::Texture(const std::string& path, bool srgb, bool flipVertically)
 {
-    // OpenGL's texture origin is bottom-left; images are usually top-left.
-    // Flipping on load makes UV (0,0) map to the bottom of the image.
     stbi_set_flip_vertically_on_load(flipVertically);
-
     unsigned char* data = stbi_load(path.c_str(), &m_width, &m_height, &m_channels, 0);
     if (!data)
     {
         std::fprintf(stderr, "[Texture] failed to load '%s': %s\n",
                      path.c_str(), stbi_failure_reason());
-        return; // m_id stays 0 -> valid() == false
+        return;
     }
 
-    // Choose GL formats from the channel count. internalFormat = how the GPU
-    // stores it; dataFormat = how our CPU bytes are laid out.
     GLenum dataFormat     = GL_RGB;
     GLint  internalFormat = GL_RGB;
     if (m_channels == 1)      { dataFormat = GL_RED;  internalFormat = GL_RED; }
@@ -33,26 +27,21 @@ Texture::Texture(const std::string& path, bool srgb, bool flipVertically)
 
     glGenTextures(1, &m_id);
     glBindTexture(GL_TEXTURE_2D, m_id);
-
-    // Tightly-packed rows (3-channel data isn't always 4-byte aligned).
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, m_width, m_height, 0,
                  dataFormat, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    // Trilinear (mipmapped) minification, linear magnification.
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
     glBindTexture(GL_TEXTURE_2D, 0);
     stbi_image_free(data);
 }
 
 Texture::~Texture()
 {
-    glDeleteTextures(1, &m_id); // glDeleteTextures on 0 is a safe no-op
+    glDeleteTextures(1, &m_id);
 }
 
 Texture::Texture(Texture&& other) noexcept
@@ -80,4 +69,33 @@ void Texture::bind(unsigned int unit) const
 {
     glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, m_id);
+}
+
+// Static factories: private default ctor is accessible inside static members.
+Texture Texture::createWhite()
+{
+    Texture t;
+    t.m_width = t.m_height = 1; t.m_channels = 3;
+    glGenTextures(1, &t.m_id);
+    glBindTexture(GL_TEXTURE_2D, t.m_id);
+    unsigned char px[3] = {255, 255, 255};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, px);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return t;
+}
+
+Texture Texture::createGrey()
+{
+    Texture t;
+    t.m_width = t.m_height = 1; t.m_channels = 3;
+    glGenTextures(1, &t.m_id);
+    glBindTexture(GL_TEXTURE_2D, t.m_id);
+    unsigned char px[3] = {128, 128, 128};
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, px);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return t;
 }

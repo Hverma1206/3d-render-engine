@@ -20,6 +20,11 @@ public:
     Texture(Texture&& other) noexcept;
     Texture& operator=(Texture&& other) noexcept;
 
+    // Factory: 1×1 solid-colour textures — used as fallbacks when a mesh has
+    // no material map (white diffuse, grey specular, etc.).
+    static Texture createWhite();
+    static Texture createGrey();  // 0.5 grey — neutral specular fallback
+
     // Bind to a texture image unit (matches the sampler's set value in GLSL).
     void bind(unsigned int unit = 0) const;
 
@@ -29,6 +34,8 @@ public:
     bool valid()  const { return m_id != 0; }
 
 private:
+    Texture() = default; // used only by createWhite/createGrey factories
+
     unsigned int m_id = 0;
     int m_width = 0, m_height = 0, m_channels = 0;
 };

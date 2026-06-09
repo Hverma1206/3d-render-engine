@@ -7,7 +7,18 @@
       "Bash(ln -sf build/compile_commands.json compile_commands.json)",
       "Bash(perl -e 'alarm 3; exec \"./build/RenderingSandbox\"')",
       "Bash(curl -fsSL https://raw.githubusercontent.com/nothings/stb/master/stb_image.h -o third_party/stb/stb_image.h)",
-      "Bash(python3 -)"
+      "Bash(python3 -)",
+      "Bash(perl -e 'alarm 4; exec \"./RenderingSandbox\"')",
+      "Bash(python3 -c ' *)",
+      "Bash(grep -v \"^$\")",
+      "Bash(brew info *)",
+      "Read(//opt/homebrew/include/**)",
+      "Bash(curl -fsSL \"https://raw.githubusercontent.com/ocornut/imgui/v1.91.9/imgui.h\" -o /Users/himanshuverma/d-drive/projects/c++/3d-render/third_party/imgui/imgui.h)",
+      "Bash(cmake -S . -B build -DCMAKE_BUILD_TYPE=Release)",
+      "Bash(timeout 5 ./build/RenderingSandbox)",
+      "Bash(./build/RenderingSandbox)",
+      "Bash(kill %1)",
+      "Bash(wait)"
     ]
   }
 }

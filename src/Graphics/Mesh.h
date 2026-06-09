@@ -20,13 +20,13 @@ public:
     Mesh(Mesh&& other) noexcept;
     Mesh& operator=(Mesh&& other) noexcept;
 
-    void draw() const; // glDrawElements with this VAO
+    void draw() const;
 
     unsigned int vertexCount() const { return static_cast<unsigned int>(m_vertexCount); }
     unsigned int indexCount()  const { return static_cast<unsigned int>(m_indexCount); }
 
 private:
-    void upload(); // builds VAO/VBO/EBO from m_vertices/m_indices
+    void upload();
 
     std::vector<Vertex>       m_vertices;
     std::vector<unsigned int> m_indices;

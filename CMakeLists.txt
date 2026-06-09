@@ -25,6 +25,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 find_package(glfw3 REQUIRED)
 find_package(glm REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(assimp REQUIRED)
 
 # ---------------------------------------------------------------------------
 # GLAD: vendored OpenGL 4.1 Core loader (generated into third_party/glad/)
@@ -34,20 +35,41 @@ add_library(glad STATIC third_party/glad/src/glad.c)
 target_include_directories(glad PUBLIC third_party/glad/include)
 
 # ---------------------------------------------------------------------------
+# Dear ImGui — vendored in third_party/imgui (Phase 18)
+# Compiled with GL_SILENCE_DEPRECATION so macOS doesn't flood the build log.
+# imgui_impl_opengl3.cpp uses its own bundled GL loader (separate TU → no
+# conflict with GLAD).
+# ---------------------------------------------------------------------------
+set(IMGUI_DIR ${CMAKE_SOURCE_DIR}/third_party/imgui)
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui_impl_glfw.cpp
+    ${IMGUI_DIR}/imgui_impl_opengl3.cpp
+)
+
+# ---------------------------------------------------------------------------
 # Application target
 # ---------------------------------------------------------------------------
 file(GLOB_RECURSE SANDBOX_SOURCES CONFIGURE_DEPENDS src/*.cpp)
-add_executable(RenderingSandbox ${SANDBOX_SOURCES})
+add_executable(RenderingSandbox ${SANDBOX_SOURCES} ${IMGUI_SOURCES})
 
-target_include_directories(RenderingSandbox PRIVATE src third_party/stb)
+target_include_directories(RenderingSandbox PRIVATE
+    src
+    third_party/stb
+    ${IMGUI_DIR}
+)
 target_link_libraries(RenderingSandbox PRIVATE
     glad
     glfw
     OpenGL::GL
     glm::glm
+    assimp::assimp
 )
 
-# macOS: OpenGL is deprecated in favor of Metal; silence the deprecation spam.
+# macOS: silence OpenGL deprecation warnings in both our code and ImGui.
 target_compile_definitions(RenderingSandbox PRIVATE GL_SILENCE_DEPRECATION)
 
 # Absolute path to the project root so the app can locate shaders/ and assets/
